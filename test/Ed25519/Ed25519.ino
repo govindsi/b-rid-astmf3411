@@ -1,0 +1,59 @@
+#include <Crypto.h>
+#include <Ed25519.h>
+#include <RNG.h>
+
+struct Ed25519_data
+{
+    const char *name;
+    uint8_t privateKey[32];
+    uint8_t publicKey[32];
+    uint8_t message[2];
+    size_t len;
+};
+
+static Ed25519_data const ed25519TestData_1 PROGMEM = {
+    .name = "Ed25519 #1",
+    .privateKey = {0x9d, 0x61, 0xb1, 0x9d, 0xef, 0xfd, 0x5a, 0x60,
+                   0xba, 0x84, 0x4a, 0xf4, 0x92, 0xec, 0x2c, 0xc4,
+                   0x44, 0x49, 0xc5, 0x69, 0x7b, 0x32, 0x69, 0x19,
+                   0x70, 0x3b, 0xac, 0x03, 0x1c, 0xae, 0x7f, 0x60},
+    .publicKey = {0xd7, 0x5a, 0x98, 0x01, 0x82, 0xb1, 0x0a, 0xb7,
+                  0xd5, 0x4b, 0xfe, 0xd3, 0xc9, 0x64, 0x07, 0x3a,
+                  0x0e, 0xe1, 0x72, 0xf3, 0xda, 0xa6, 0x23, 0x25,
+                  0xaf, 0x02, 0x1a, 0x68, 0xf7, 0x07, 0x51, 0x1a},
+    .message = {0xC2, 0x42, 0x00, 0x36, 0x64, 0xC4, 0x19, 0x4E,
+		0xC3, 0x0C, 0xD3, 0x01, 0x00, 0x0A, 0xC0, 0x08,
+		0xE4, 0x07, 0x00, 0xF4, 0x08, 0x75, 0x07, 0x2E, 0x07, 0x00},
+    .len = 0,
+};
+
+void signAndVerify(const Ed25519_data *test)
+{
+    // Sign using the sample RID data.
+    uint8_t signature[64];
+    Ed25519::sign(signature, test->privateKey, test->publicKey, test->message, test->len);
+
+    // Verify using the Sample RID data.
+    bool verified = Ed25519::verify(signature, test->publicKey, test->message, test->len);
+
+    // Check if verification is successful.
+    if (verified) {
+        Serial.println("Signature verification successful");
+    } else {
+        Serial.println("Signature verification failed");
+    }
+}
+
+void setup()
+{
+    Serial.begin(9600);
+    // Perform sign and verify with sample RID data.
+    signAndVerify(&ed25519TestData_1);
+    delay(5000);
+    Serial.println();
+}
+
+void loop()
+{
+
+}
